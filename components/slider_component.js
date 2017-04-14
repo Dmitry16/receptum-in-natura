@@ -5,6 +5,8 @@ import ReactDOM from 'react-dom'
 import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 //Actions
 import { fetchAllPics } from '../src/actions/picsActions'
+import { showModal, closeModal, getPrevImg, showPrevImg, getNextImg,
+        showNextImg } from '../src/actions/modalActions'
 //Components
 import AllPics from "./allpics"
 //Styled componentsimport styled from "styled-components";
@@ -21,107 +23,6 @@ export default class Slider extends React.Component {
   constructor(props) {
     super(props);
   }
-
-showModal(e) {
-  const actualPic = e.target.getAttribute('src')
-  let nextImg = (this.getNextImg(actualPic)) ? this.getNextImg(actualPic) : ''
-  let prevImg = (this.getPrevImg(actualPic)) ? this.getPrevImg(actualPic) : ''
-  this.props.dispatch({type: 'SHOW_MODAL',
-                      payload: [
-                        actualPic,
-                        nextImg,
-                        prevImg
-                      ]
-  })
-}
-
-closeModal() {
-  this.props.dispatch({type: 'CLOSE_MODAL'})
-}
-
-getPrevImg(actualPic) {
-  const pics = this.props.pics;
-  for(let i=pics.length-1; i>0; i--) {
-      if(actualPic === pics[i].source_url && pics[i-1]) {
-        return pics[i-1].source_url;
-      } else if (!pics[i-1]) {
-        return false;
-      }
-  }
-}
-showPrevImg() {
-  //here the next image becomes actual modal img (when fired the action)
-  let actualImg = this.props.prevImg;
-  let newPrevImg = (this.getPrevImg(actualImg))
-                      ?
-                        this.getPrevImg(actualImg)
-                      :
-                        false
-  let newNextImg = (this.props.modalPic)
-                      ?
-                        this.props.modalPic
-                      :
-                        false
-
-  if(actualImg && newPrevImg) {
-    this.props.dispatch({type: 'SHOW_PREV_IMG',
-                                payload: [actualImg,
-                                          newNextImg,
-                                          newPrevImg]
-    })
-  } else if (actualImg && !newPrevImg) {
-
-    this.props.dispatch({type: 'SHOW_PREV_IMG',
-                                payload: [actualImg,
-                                          newNextImg,
-                                          newPrevImg]
-    })
-  } else {
-    this.props.dispatch({type: 'CLOSE_MODAL'})
-  }
-}
-
-getNextImg(actualPic) {
-  const pics = this.props.pics;
-  for(let i=0; i<pics.length; i++) {
-    if(actualPic === pics[i].source_url && pics[i+1]) {
-      return pics[i+1].source_url;
-    } else if (!pics[i+1]) {
-      return false;
-    }
-  }
-}
-showNextImg() {
-  //here the next image becomes actual modal img (when fired the action)
-  let actualImg = this.props.nextImg
-  let newNextImg = (this.getNextImg(actualImg))
-                      ?
-                        this.getNextImg(actualImg)
-                      :
-                        false
-  let newPrevImg = (this.props.modalPic)
-                      ?
-                        this.props.modalPic
-                      :
-                        false
-
-  if(actualImg && newNextImg) {
-    this.props.dispatch({type: 'SHOW_NEXT_IMG',
-                                payload: [actualImg,
-                                          newNextImg,
-                                          newPrevImg]
-    })
-  } else if (actualImg && !newNextImg) {
-
-    this.props.dispatch({type: 'SHOW_NEXT_IMG',
-                                payload: [actualImg,
-                                          newNextImg,
-                                          newPrevImg]
-    })
-  } else {
-    this.props.dispatch({type: 'CLOSE_MODAL'})
-  }
-}
 
 showAllPics() {
   this.props.dispatch(fetchAllPics())
@@ -194,7 +95,7 @@ showAllPics() {
         return (
           <PicWrapper key={pic.id}>
             <Img src={pic.source_url} alt={pic.alt_text}
-              onClick = {this.showModal.bind(this)}/>
+              onClick = {showModal}/>
           </PicWrapper>
         )
     })
@@ -205,11 +106,11 @@ showAllPics() {
             { pics }
 
             <Modal id='modal'>
-              <Close onClick={this.closeModal.bind(this)}>X</Close>
+              <Close onClick={closeModal}>X</Close>
               <ModalImgWrapper>
-                <PrevImg onClick={this.showPrevImg.bind(this)}>PRV</PrevImg>
-                <ModalImg id='modalImg' src={this.props.modalPic} alt='vv'/>
-                <NextImg onClick={this.showNextImg.bind(this)}>NXT</NextImg>
+                <PrevImg onClick={showPrevImg}>PRV</PrevImg>
+                <ModalImg id='modalImg' src={props.modalPic} alt='vv'/>
+                <NextImg onClick={showNextImg}>NXT</NextImg>
               </ModalImgWrapper>
             </Modal>
 
